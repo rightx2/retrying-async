@@ -36,11 +36,10 @@ def is_exception(obj):
     )
 
 
-# https://stackoverflow.com/questions/74345065/attributeerror-module-asyncio-has-no-attribute-coroutine-in-python-3-11
-async def callback(attempt, exc, args, kwargs, delay=0.5, *, loop):
-    yield from asyncio.sleep(delay, loop=loop)
+async def callback(attempt, exc, args, kwargs, delay=0.5):
+    await asyncio.sleep(delay)
+    return retry  # Make sure `retry` is defined or handled appropriately elsewhere in your code
 
-    return retry
 
 
 def retry(
@@ -63,7 +62,7 @@ def retry(
     :param fallback: a callable function or a value to return when all attempts are tried.
     :param retry_exceptions:
     :param fatal_exceptions:
-    :param logger: 
+    :param logger:
     :return:
     """
     def wrapper(fn):
@@ -152,7 +151,7 @@ def retry(
                     )
 
                     ret = callback(
-                        attempt, exc, fn_args, fn_kwargs, delay=_delay, loop=_loop,
+                        attempt, exc, fn_args, fn_kwargs, delay=_delay
                     )
                     _delay *= backoff
                     if isinstance(jitter, tuple):
